@@ -1,27 +1,26 @@
 @charset "utf-8";
 
 // Settings
-@import "settings/variables";
-@import "settings/functions";
-@import "settings/mixins";
+@forward "settings/variables";
+@forward "settings/functions";
+@forward "settings/mixins";
 
 // Plugins
-// @import "~html5-reset";
-// @import "~normalize.css";
-// @import "~sanitize.css";
+@forward "~html5-reset";
+@forward "~normalize.css";
+@forward "~sanitize.css";
 
 // Base
-@import "base/default";
-@import "base/general";
+@forward "base/default";
+@forward "base/general";
 
 // Components
-@import "components/components";
+@forward "components/components";
 
 // Layouts
-@import "layouts/header";
-@import "layouts/main";
-@import "layouts/footer";
+@forward "layouts/header";
+@forward "layouts/main";
+@forward "layouts/footer";
 
 // Pages
-@import "pages/index";
-// @import "pages/works";
+@forward "pages/index";

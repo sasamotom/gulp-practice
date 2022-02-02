@@ -6,6 +6,7 @@ const plumber = require('gulp-plumber');  // エラー時にもタスクを終�
 const pug = require('gulp-pug');          // pugファイルをhtmlにコンパイル
 const sass = require('gulp-sass')(require('sass')); // scssファイルをcssにコンパイル
 const autoprefixer = require('gulp-autoprefixer');  // cssにベンダープレフィックスを追加する
+const packageImporter = require('node-sass-package-importer');  // パッケージのcssを読み込めるようにする
 const imagemin = require('gulp-imagemin');          // 画像圧縮（一般）
 const mozjpeg = require('imagemin-mozjpeg');        // 画像圧縮（jpeg）
 const pngquant = require('imagemin-pngquant');      // 画像圧縮（png）
@@ -13,6 +14,8 @@ const webpack = require('webpack');       // webpack
 const webpackStream = require('webpack-stream'); // webpackを使うために必要なプラグイン
 
 const browserSync = require('browser-sync').create(); // browser-sync
+
+const del = require('del');                           // ファイルの削除
 
 const { src, watch, series, parallel } = require('gulp');  // gulp機能
 
@@ -34,7 +37,9 @@ const pugCompile = () => {
 const scssCompile = () => {
   return src(dir.src + '/**/*.scss', {base: dir.src + '/_assets/scss'})
     .pipe(plumber({ errorHandler: notify.onError("Error: <%= error.message %>") }))
-    .pipe(sass())
+    .pipe(sass({
+      importer: packageImporter({ extensions: ['.scss', '.css'] })
+    }))
     .pipe(autoprefixer())
     .pipe(gulp.dest(dir.dist + '/_assets/css'));
 };
@@ -66,6 +71,24 @@ const imageCompress = () => {
     .pipe(gulp.dest(dir.dist + '/_assets/images'));
 };
 
+// ファイルの削除
+const cleanHtml = (done) => {
+  del([dir.dist + '/**/*.html']);
+  done();
+}
+const cleanCss = (done) => {
+  del([dir.dist + '/_assets/css/*.*']);
+  done();
+}
+const cleanJs = (done) => {
+  del([dir.dist + '/_assets/js/*.*']);
+  done();
+}
+const cleanImage = (done) => {
+  del([dir.dist + '/_assets/images/*.*']);
+  done();
+}
+
 // ブラウザ自動リロード【初期化タスク】
 const browserSyncInit = (done) => {
   browserSync.init({
@@ -88,15 +111,16 @@ const watchFiles = (done) => {
   watch(dir.dist + '/**/**.css', browserReload);
   watch(dir.dist + '/**/**.js', browserReload);
   watch(dir.dist + '/**/images/**/*.*', browserReload);
-  watch(dir.src + '/**/*.pug', pugCompile);
-  watch(dir.src + '/_assets/scss/**/*.scss', scssCompile);
-  watch(dir.src + '/_assets/js/**/*.js', jsCompile);
+  watch(dir.src + '/**/*.pug', series(cleanHtml, pugCompile));
+  watch(dir.src + '/_assets/scss/**/*.scss', series(cleanCss, scssCompile));
+  watch(dir.src + '/_assets/js/**/*.js', series(cleanJs, jsCompile));
   watch(dir.src + '/_assets/images/**/*.*', imageCompress);
   done();
 };
 
 // タスクの実行
 exports.default = series(
+  parallel(cleanHtml, cleanCss, cleanJs, cleanImage),
   parallel(pugCompile, scssCompile, jsCompile, imageCompress),
   browserSyncInit,
   watchFiles
