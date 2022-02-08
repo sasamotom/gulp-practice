@@ -7,6 +7,7 @@ const pug = require('gulp-pug');          // pugファイルをhtmlにコンパ�
 const sass = require('gulp-sass')(require('sass')); // scssファイルをcssにコンパイル
 const autoprefixer = require('gulp-autoprefixer');  // cssにベンダープレフィックスを追加する
 const packageImporter = require('node-sass-package-importer');  // パッケージのcssを読み込めるようにする
+const sassGlob = require('gulp-sass-glob-use-forward');         // ディレクトリ毎にscssをforwardできるようにする
 const imagemin = require('gulp-imagemin');          // 画像圧縮（一般）
 const mozjpeg = require('imagemin-mozjpeg');        // 画像圧縮（jpeg）
 const pngquant = require('imagemin-pngquant');      // 画像圧縮（png）
@@ -35,8 +36,9 @@ const pugCompile = () => {
 
 //Scss
 const scssCompile = () => {
-  return src(dir.src + '/**/*.scss', {base: dir.src + '/_assets/scss'})
+  return src(dir.src + '/_assets/scss/**/*.scss')
     .pipe(plumber({ errorHandler: notify.onError("Error: <%= error.message %>") }))
+    .pipe(sassGlob())
     .pipe(sass({
       importer: packageImporter({ extensions: ['.scss', '.css'] })
     }))

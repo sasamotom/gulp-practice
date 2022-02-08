@@ -7,8 +7,8 @@
 
 // Plugins
 @forward "~html5-reset";
-@forward "~normalize.css";
-@forward "~sanitize.css";
+// @forward "~normalize.css";
+// @forward "~sanitize.css";
 
 // Base
 @forward "base/default";
@@ -23,4 +23,5 @@
 @forward "layouts/footer";
 
 // Pages
-@forward "pages/index";
+// @forward "pages/index";
+@forward "pages/*"; 
