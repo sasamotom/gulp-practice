@@ -1,3 +1,4 @@
+const TerserPlugin = require('terser-webpack-plugin');
 module.exports = {
   // モード値を production に設定すると最適化された状態で、
   // development に設定するとソースマップ有効でJSファイルが出力される
@@ -9,7 +10,10 @@ module.exports = {
     filename: 'app.js',
     // chunkFilename: 'vendor.js'
   },
-  // optimization: {
+  optimization: {
+    minimizer: [new TerserPlugin({
+      extractComments: false,
+    })],
   //   splitChunks: {
   //     cacheGroups: {
   //       commons: {
@@ -18,7 +22,7 @@ module.exports = {
   //       }
   //     }
   //   }
-  // },
+  },
   // devtool: false,
   // module: {
   //   rules: [

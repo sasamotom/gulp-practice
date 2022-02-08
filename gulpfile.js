@@ -26,7 +26,7 @@ const dir = {
   dist: './htdocs'
 };
 
-//Pug
+// Pug
 const pugCompile = () => {
   return src([dir.src + '/**/*.pug', '!' + dir.src + '/**/_*.pug'])
     .pipe(plumber({ errorHandler: notify.onError("Error: <%= error.message %>") }))
@@ -34,16 +34,16 @@ const pugCompile = () => {
     .pipe(gulp.dest(dir.dist));
 };
 
-//Scss
+// Scss
 const scssCompile = () => {
-  return src(dir.src + '/_assets/scss/**/*.scss')
+  return src(dir.src + '/_assets/scss/**/*.scss', { sourcemaps: true })
     .pipe(plumber({ errorHandler: notify.onError("Error: <%= error.message %>") }))
     .pipe(sassGlob())
     .pipe(sass({
       importer: packageImporter({ extensions: ['.scss', '.css'] })
     }))
     .pipe(autoprefixer())
-    .pipe(gulp.dest(dir.dist + '/_assets/css'));
+    .pipe(gulp.dest(dir.dist + '/_assets/css', { sourcemaps: './sourcemaps' }));
 };
 
 // Js
@@ -90,6 +90,10 @@ const cleanImage = (done) => {
   del([dir.dist + '/_assets/images/*.*']);
   done();
 }
+const cleanMap = (done) => {
+  del([dir.dist + '/_assets/css/sourcemaps']);
+  done();
+}
 
 // ブラウザ自動リロード【初期化タスク】
 const browserSyncInit = (done) => {
@@ -122,7 +126,7 @@ const watchFiles = (done) => {
 
 // タスクの実行
 exports.default = series(
-  parallel(cleanHtml, cleanCss, cleanJs, cleanImage),
+  parallel(cleanHtml, cleanCss, cleanJs, cleanImage, cleanMap),
   parallel(pugCompile, scssCompile, jsCompile, imageCompress),
   browserSyncInit,
   watchFiles
